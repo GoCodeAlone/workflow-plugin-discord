@@ -35,6 +35,7 @@ func TestStepTypes(t *testing.T) {
 		"step.discord_create_thread":  true,
 		"step.discord_voice_join":     true,
 		"step.discord_voice_leave":    true,
+		"step.discord_voice_play":     true,
 	}
 	for _, st := range p.StepTypes() {
 		if !want[st] {
@@ -103,7 +104,7 @@ func TestCreateStepAllTypes(t *testing.T) {
 func TestStepTypesMatchManifest(t *testing.T) {
 	// Verify the step count matches plugin.json capabilities
 	p := New()
-	if len(p.StepTypes()) != 9 {
-		t.Errorf("expected 9 step types to match plugin.json, got %d", len(p.StepTypes()))
+	if len(p.StepTypes()) != 10 {
+		t.Errorf("expected 10 step types to match plugin.json, got %d", len(p.StepTypes()))
 	}
 }

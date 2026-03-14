@@ -38,6 +38,7 @@ func (p *discordPlugin) StepTypes() []string {
 		"step.discord_create_thread",
 		"step.discord_voice_join",
 		"step.discord_voice_leave",
+		"step.discord_voice_play",
 	}
 }
 
@@ -79,6 +80,8 @@ func (p *discordPlugin) CreateStep(typeName, name string, config map[string]any)
 		return &voiceJoinStep{}, nil
 	case "step.discord_voice_leave":
 		return &voiceLeaveStep{}, nil
+	case "step.discord_voice_play":
+		return &voicePlayStep{}, nil
 	default:
 		return nil, fmt.Errorf("discord plugin: unknown step type %q", typeName)
 	}

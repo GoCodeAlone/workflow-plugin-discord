@@ -6,8 +6,13 @@ import (
 	"io"
 	"sync"
 
+	messaging "github.com/GoCodeAlone/workflow-plugin-messaging-core"
 	"github.com/bwmarrin/discordgo"
 )
+
+// Compile-time interface satisfaction checks.
+var _ messaging.Provider = (*discordProvider)(nil)
+var _ messaging.VoiceProvider = (*discordProvider)(nil)
 
 // providerRegistry holds active discord provider sessions keyed by module name.
 var providerRegistry = &sync.Map{}
@@ -53,7 +58,7 @@ func (m *discordProvider) Stop(ctx context.Context) error {
 func (m *discordProvider) Name() string { return "discord" }
 
 // SendMessage sends a plain text message to a channel.
-func (m *discordProvider) SendMessage(ctx context.Context, channelID, content string, opts interface{}) (string, error) {
+func (m *discordProvider) SendMessage(ctx context.Context, channelID, content string, opts *messaging.MessageOpts) (string, error) {
 	msg, err := m.session.ChannelMessageSend(channelID, content)
 	if err != nil {
 		return "", fmt.Errorf("discord send: %w", err)
@@ -70,6 +75,15 @@ func (m *discordProvider) EditMessage(ctx context.Context, channelID, messageID,
 // DeleteMessage removes a message.
 func (m *discordProvider) DeleteMessage(ctx context.Context, channelID, messageID string) error {
 	return m.session.ChannelMessageDelete(channelID, messageID)
+}
+
+// SendReply sends a threaded reply.
+func (m *discordProvider) SendReply(ctx context.Context, channelID, parentID, content string, opts *messaging.MessageOpts) (string, error) {
+	msg, err := m.session.ChannelMessageSendReply(channelID, content, &discordgo.MessageReference{MessageID: parentID, ChannelID: channelID})
+	if err != nil {
+		return "", fmt.Errorf("discord reply: %w", err)
+	}
+	return msg.ID, nil
 }
 
 // React adds a reaction emoji to a message.

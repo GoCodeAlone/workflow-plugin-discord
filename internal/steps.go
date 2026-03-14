@@ -219,6 +219,25 @@ func (s *voiceJoinStep) Execute(ctx context.Context, triggerData map[string]any,
 	return &sdk.StepResult{Output: map[string]any{"joined": true}}, nil
 }
 
+// --- step.discord_voice_play ---
+
+type voicePlayStep struct{}
+
+func (s *voicePlayStep) Execute(ctx context.Context, triggerData map[string]any, stepOutputs map[string]map[string]any, current map[string]any, metadata map[string]any, cfg map[string]any) (*sdk.StepResult, error) {
+	p, err := resolveProvider(current)
+	if err != nil {
+		return nil, err
+	}
+	guildID, _ := current["guild_id"].(string)
+	if guildID == "" {
+		return nil, fmt.Errorf("discord_voice_play: guild_id is required")
+	}
+	if err := p.PlayAudio(ctx, guildID, strings.NewReader("")); err != nil {
+		return nil, fmt.Errorf("discord_voice_play: %w", err)
+	}
+	return &sdk.StepResult{Output: map[string]any{"playing": true}}, nil
+}
+
 // --- step.discord_voice_leave ---
 
 type voiceLeaveStep struct{}

@@ -4,6 +4,7 @@ go 1.26.1
 
 require (
 	github.com/GoCodeAlone/workflow v0.3.40
+	github.com/GoCodeAlone/workflow-plugin-messaging-core v0.1.0
 	github.com/bwmarrin/discordgo v0.29.0
 )
 

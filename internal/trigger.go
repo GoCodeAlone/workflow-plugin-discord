@@ -25,7 +25,8 @@ func newDiscordTrigger(config map[string]any, cb sdk.TriggerCallback) (*discordT
 	}
 	dg.Identify.Intents = discordgo.IntentsGuildMessages |
 		discordgo.IntentsDirectMessages |
-		discordgo.IntentsGuildMessageReactions
+		discordgo.IntentsGuildMessageReactions |
+		discordgo.IntentsGuildMembers
 	return &discordTrigger{session: dg, callback: cb}, nil
 }
 
