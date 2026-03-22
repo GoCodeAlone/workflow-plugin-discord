@@ -18,20 +18,40 @@ var _ messaging.VoiceProvider = (*discordProvider)(nil)
 var providerRegistry = &sync.Map{}
 
 type discordProvider struct {
-	name    string
-	token   string
-	session *discordgo.Session
+	name     string
+	token    string
+	baseURL  string // optional: overrides the Discord REST API base URL (for testing)
+	mockMode bool   // when true, skips WebSocket gateway connection
+	session  *discordgo.Session
 }
 
 func newDiscordProvider(name string, config map[string]any) (*discordProvider, error) {
 	token, _ := config["token"].(string)
-	if token == "" {
+	mockMode := false
+	if v, ok := config["mock_mode"].(bool); ok {
+		mockMode = v
+	}
+	if token == "" && !mockMode {
 		return nil, fmt.Errorf("discord.provider: token is required")
 	}
-	return &discordProvider{name: name, token: token}, nil
+	if token == "" {
+		token = "mock-discord-token"
+	}
+	baseURL, _ := config["baseURL"].(string)
+	return &discordProvider{name: name, token: token, baseURL: baseURL, mockMode: mockMode}, nil
 }
 
 func (m *discordProvider) Init() error {
+	if m.baseURL != "" {
+		// Override global Discord endpoint variables to point to mock server.
+		discordgo.EndpointDiscord = m.baseURL + "/"
+		discordgo.EndpointAPI = m.baseURL + "/api/v" + discordgo.APIVersion + "/"
+		discordgo.EndpointGuilds = discordgo.EndpointAPI + "guilds/"
+		discordgo.EndpointChannels = discordgo.EndpointAPI + "channels/"
+		discordgo.EndpointUsers = discordgo.EndpointAPI + "users/"
+		discordgo.EndpointGateway = discordgo.EndpointAPI + "gateway"
+		discordgo.EndpointWebhooks = discordgo.EndpointAPI + "webhooks/"
+	}
 	dg, err := discordgo.New("Bot " + m.token)
 	if err != nil {
 		return fmt.Errorf("discord session: %w", err)
@@ -46,12 +66,18 @@ func (m *discordProvider) Init() error {
 }
 
 func (m *discordProvider) Start(ctx context.Context) error {
+	if m.mockMode {
+		return nil
+	}
 	return m.session.Open()
 }
 
 func (m *discordProvider) Stop(ctx context.Context) error {
 	providerRegistry.Delete(m.name)
-	return m.session.Close()
+	if m.session != nil {
+		return m.session.Close()
+	}
+	return nil
 }
 
 // Name returns the platform identifier.

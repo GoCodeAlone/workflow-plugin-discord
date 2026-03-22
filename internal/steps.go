@@ -37,6 +37,7 @@ func (s *sendMessageStep) Execute(ctx context.Context, triggerData map[string]an
 		return nil, fmt.Errorf("discord_send_message: %w", err)
 	}
 	return &sdk.StepResult{Output: map[string]any{
+		"id":         msg.ID,
 		"message_id": msg.ID,
 		"channel_id": msg.ChannelID,
 	}}, nil
@@ -68,6 +69,7 @@ func (s *sendEmbedStep) Execute(ctx context.Context, triggerData map[string]any,
 		return nil, fmt.Errorf("discord_send_embed: %w", err)
 	}
 	return &sdk.StepResult{Output: map[string]any{
+		"id":         msg.ID,
 		"message_id": msg.ID,
 		"channel_id": msg.ChannelID,
 	}}, nil
@@ -135,7 +137,7 @@ func (s *addReactionStep) Execute(ctx context.Context, triggerData map[string]an
 	if err := p.session.MessageReactionAdd(channelID, messageID, emoji); err != nil {
 		return nil, fmt.Errorf("discord_add_reaction: %w", err)
 	}
-	return &sdk.StepResult{Output: map[string]any{"reacted": true}}, nil
+	return &sdk.StepResult{Output: map[string]any{"reacted": true, "success": true}}, nil
 }
 
 // --- step.discord_upload_file ---
