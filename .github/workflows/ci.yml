@@ -16,6 +16,8 @@ jobs:
       - run: go test ./... -v -race -count=1
   wfctl-strict-contracts:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
