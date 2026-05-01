@@ -25,5 +25,112 @@
             "step.discord_voice_play"
         ],
         "triggerTypes": ["trigger.discord"]
-    }
+    },
+    "contracts": [
+        {
+            "kind": "module",
+            "type": "discord.provider",
+            "mode": "strict",
+            "config": "discord.v1.ProviderConfig"
+        },
+        {
+            "kind": "step",
+            "type": "step.discord_send_message",
+            "mode": "strict",
+            "config": "discord.v1.SendMessageConfig",
+            "output": "discord.v1.SendMessageOutput"
+        },
+        {
+            "kind": "step",
+            "type": "step.discord_send_embed",
+            "mode": "strict",
+            "config": "discord.v1.SendEmbedConfig",
+            "output": "discord.v1.SendEmbedOutput"
+        },
+        {
+            "kind": "step",
+            "type": "step.discord_edit_message",
+            "mode": "strict",
+            "config": "discord.v1.EditMessageConfig",
+            "output": "discord.v1.EditMessageOutput"
+        },
+        {
+            "kind": "step",
+            "type": "step.discord_delete_message",
+            "mode": "strict",
+            "config": "discord.v1.DeleteMessageConfig",
+            "output": "discord.v1.DeleteMessageOutput"
+        },
+        {
+            "kind": "step",
+            "type": "step.discord_add_reaction",
+            "mode": "strict",
+            "config": "discord.v1.AddReactionConfig",
+            "output": "discord.v1.AddReactionOutput"
+        },
+        {
+            "kind": "step",
+            "type": "step.discord_upload_file",
+            "mode": "strict",
+            "config": "discord.v1.UploadFileConfig",
+            "output": "discord.v1.UploadFileOutput"
+        },
+        {
+            "kind": "step",
+            "type": "step.discord_create_thread",
+            "mode": "strict",
+            "config": "discord.v1.CreateThreadConfig",
+            "output": "discord.v1.CreateThreadOutput"
+        },
+        {
+            "kind": "step",
+            "type": "step.discord_voice_join",
+            "mode": "strict",
+            "config": "discord.v1.VoiceJoinConfig",
+            "output": "discord.v1.VoiceJoinOutput"
+        },
+        {
+            "kind": "step",
+            "type": "step.discord_voice_leave",
+            "mode": "strict",
+            "config": "discord.v1.VoiceLeaveConfig",
+            "output": "discord.v1.VoiceLeaveOutput"
+        },
+        {
+            "kind": "step",
+            "type": "step.discord_voice_play",
+            "mode": "strict",
+            "config": "discord.v1.VoicePlayConfig",
+            "output": "discord.v1.VoicePlayOutput"
+        },
+        {
+            "kind": "trigger",
+            "type": "trigger.discord",
+            "mode": "strict",
+            "config": "discord.v1.TriggerConfig",
+            "output": "discord.v1.TriggerPayload"
+        }
+    ],
+    "downloads": [
+        {
+            "os": "linux",
+            "arch": "amd64",
+            "url": "https://github.com/GoCodeAlone/workflow-plugin-discord/releases/download/v0.1.1/workflow-plugin-discord-linux-amd64.tar.gz"
+        },
+        {
+            "os": "linux",
+            "arch": "arm64",
+            "url": "https://github.com/GoCodeAlone/workflow-plugin-discord/releases/download/v0.1.1/workflow-plugin-discord-linux-arm64.tar.gz"
+        },
+        {
+            "os": "darwin",
+            "arch": "amd64",
+            "url": "https://github.com/GoCodeAlone/workflow-plugin-discord/releases/download/v0.1.1/workflow-plugin-discord-darwin-amd64.tar.gz"
+        },
+        {
+            "os": "darwin",
+            "arch": "arm64",
+            "url": "https://github.com/GoCodeAlone/workflow-plugin-discord/releases/download/v0.1.1/workflow-plugin-discord-darwin-arm64.tar.gz"
+        }
+    ]
 }
