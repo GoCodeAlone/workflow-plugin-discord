@@ -151,19 +151,12 @@ func TestPluginContractsMatchRuntimeTypes(t *testing.T) {
 	wantDescriptors := map[string]struct {
 		config string
 		output string
-	}{
-		"module:discord.provider":          {"discord.v1.ProviderConfig", ""},
-		"step:step.discord_send_message":   {"discord.v1.SendMessageConfig", "discord.v1.SendMessageOutput"},
-		"step:step.discord_send_embed":     {"discord.v1.SendEmbedConfig", "discord.v1.SendEmbedOutput"},
-		"step:step.discord_edit_message":   {"discord.v1.EditMessageConfig", "discord.v1.EditMessageOutput"},
-		"step:step.discord_delete_message": {"discord.v1.DeleteMessageConfig", "discord.v1.DeleteMessageOutput"},
-		"step:step.discord_add_reaction":   {"discord.v1.AddReactionConfig", "discord.v1.AddReactionOutput"},
-		"step:step.discord_upload_file":    {"discord.v1.UploadFileConfig", "discord.v1.UploadFileOutput"},
-		"step:step.discord_create_thread":  {"discord.v1.CreateThreadConfig", "discord.v1.CreateThreadOutput"},
-		"step:step.discord_voice_join":     {"discord.v1.VoiceJoinConfig", "discord.v1.VoiceJoinOutput"},
-		"step:step.discord_voice_leave":    {"discord.v1.VoiceLeaveConfig", "discord.v1.VoiceLeaveOutput"},
-		"step:step.discord_voice_play":     {"discord.v1.VoicePlayConfig", "discord.v1.VoicePlayOutput"},
-		"trigger:trigger.discord":          {"discord.v1.TriggerConfig", "discord.v1.TriggerPayload"},
+	}{}
+	for _, descriptor := range p.contractDescriptors() {
+		wantDescriptors[descriptor.Kind+":"+descriptor.Type] = struct {
+			config string
+			output string
+		}{descriptor.Config, descriptor.Output}
 	}
 
 	got := map[string]bool{}
@@ -232,6 +225,7 @@ func TestGoReleaserValidatesRewrittenPluginManifest(t *testing.T) {
 	releaseVersion := "9.8.7"
 	tmp := t.TempDir()
 	copyFile(t, filepath.Join(repoRoot(t), "plugin.json"), filepath.Join(tmp, "plugin.json"))
+	originalManifest := loadPluginManifestFrom(t, filepath.Join(tmp, "plugin.json"))
 	binDir := t.TempDir()
 	validationLog := filepath.Join(tmp, "validation.log")
 	writeExecutable(t, filepath.Join(binDir, "go"), `#!/bin/sh
@@ -290,7 +284,11 @@ printf 'validated %s\n' "$file" >> "$VALIDATION_LOG"
 		}
 	}
 
-	manifest := loadPluginManifestFrom(t, filepath.Join(tmp, "plugin.json"))
+	sourceManifest := loadPluginManifestFrom(t, filepath.Join(tmp, "plugin.json"))
+	if sourceManifest.Version != originalManifest.Version {
+		t.Fatalf("source manifest version = %q after hooks, want original %q", sourceManifest.Version, originalManifest.Version)
+	}
+	manifest := loadPluginManifestFrom(t, filepath.Join(tmp, "dist", "plugin.json"))
 	if manifest.Version != releaseVersion {
 		t.Fatalf("manifest version = %q, want %q", manifest.Version, releaseVersion)
 	}
@@ -300,8 +298,11 @@ printf 'validated %s\n' "$file" >> "$VALIDATION_LOG"
 			t.Fatalf("download URL %q does not use release version %s", download.URL, releaseVersion)
 		}
 	}
-	if data, err := os.ReadFile(validationLog); err != nil || !strings.Contains(string(data), "validated plugin.json") {
+	if data, err := os.ReadFile(validationLog); err != nil || !strings.Contains(string(data), "validated dist/plugin.json") {
 		t.Fatalf("strict validation was not invoked; log=%q err=%v", data, err)
+	}
+	if _, err := os.Stat(filepath.Join(tmp, "plugin.json.orig")); !os.IsNotExist(err) {
+		t.Fatalf("plugin.json.orig should not be created, stat err=%v", err)
 	}
 }
 

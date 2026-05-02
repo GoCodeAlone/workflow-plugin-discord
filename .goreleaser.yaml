@@ -2,10 +2,11 @@ version: 2
 
 before:
   hooks:
-    - "cp plugin.json plugin.json.orig"
-    - "sed -i.bak 's/\"version\": \".*\"/\"version\": \"{{ .Version }}\"/' plugin.json && rm -f plugin.json.bak"
-    - "sed -i.bak 's|/releases/download/v[^/]*/|/releases/download/v{{ .Version }}/|g' plugin.json && rm -f plugin.json.bak"
-    - "go run github.com/GoCodeAlone/workflow/cmd/wfctl@v0.20.1 plugin validate --file plugin.json --strict-contracts"
+    - "mkdir -p dist"
+    - "cp plugin.json dist/plugin.json"
+    - "sed -i.bak 's/\"version\": \".*\"/\"version\": \"{{ .Version }}\"/' dist/plugin.json && rm -f dist/plugin.json.bak"
+    - "sed -i.bak 's|/releases/download/v[^/]*/|/releases/download/v{{ .Version }}/|g' dist/plugin.json && rm -f dist/plugin.json.bak"
+    - "go run github.com/GoCodeAlone/workflow/cmd/wfctl@v0.20.1 plugin validate --file dist/plugin.json --strict-contracts"
 
 builds:
   - main: ./cmd/{{ .ProjectName }}
@@ -25,7 +26,8 @@ archives:
   - formats: [tar.gz]
     name_template: "{{ .ProjectName }}-{{ .Os }}-{{ .Arch }}"
     files:
-      - plugin.json
+      - src: dist/plugin.json
+        dst: plugin.json
 
 checksum:
   name_template: checksums.txt
