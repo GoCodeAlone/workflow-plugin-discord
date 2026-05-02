@@ -143,6 +143,9 @@ func TestPluginContractsMatchRuntimeTypes(t *testing.T) {
 		if contract.Config == "" {
 			t.Fatalf("%s missing config message", key)
 		}
+		if contract.Kind != "module" && contract.Output == "" {
+			t.Fatalf("%s missing output message", key)
+		}
 	}
 	if !setsEqual(got, want) {
 		t.Fatalf("contracts = %v, want runtime types %v", got, want)
@@ -213,6 +216,7 @@ type pluginManifest struct {
 		Type   string `json:"type"`
 		Mode   string `json:"mode"`
 		Config string `json:"config"`
+		Output string `json:"output"`
 	} `json:"contracts"`
 	Downloads []struct {
 		OS   string `json:"os"`
