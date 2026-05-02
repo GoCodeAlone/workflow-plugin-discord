@@ -2,7 +2,15 @@ package internal
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
+	"os"
+	"path/filepath"
+	"runtime"
+	"strings"
 	"testing"
+
+	"gopkg.in/yaml.v3"
 )
 
 func TestManifest(t *testing.T) {
@@ -103,10 +111,85 @@ func TestCreateStepAllTypes(t *testing.T) {
 }
 
 func TestStepTypesMatchManifest(t *testing.T) {
-	// Verify the step count matches plugin.json capabilities
 	p := New()
-	if len(p.StepTypes()) != 10 {
-		t.Errorf("expected 10 step types to match plugin.json, got %d", len(p.StepTypes()))
+	manifest := loadPluginManifest(t)
+	if got, want := stringSet(p.StepTypes()), stringSet(manifest.Capabilities.StepTypes); !setsEqual(got, want) {
+		t.Fatalf("step types = %v, want manifest %v", got, want)
+	}
+}
+
+func TestPluginContractsMatchRuntimeTypes(t *testing.T) {
+	p := New()
+	manifest := loadPluginManifest(t)
+
+	want := map[string]bool{}
+	for _, moduleType := range p.ModuleTypes() {
+		want["module:"+moduleType] = true
+	}
+	for _, stepType := range p.StepTypes() {
+		want["step:"+stepType] = true
+	}
+	for _, triggerType := range p.TriggerTypes() {
+		want["trigger:"+triggerType] = true
+	}
+
+	got := map[string]bool{}
+	for _, contract := range manifest.Contracts {
+		key := contract.Kind + ":" + contract.Type
+		got[key] = true
+		if contract.Mode != "strict" {
+			t.Fatalf("%s mode = %q, want strict", key, contract.Mode)
+		}
+		if contract.Config == "" {
+			t.Fatalf("%s missing config message", key)
+		}
+	}
+	if !setsEqual(got, want) {
+		t.Fatalf("contracts = %v, want runtime types %v", got, want)
+	}
+}
+
+func TestPluginDownloadsMatchGoReleaserMatrix(t *testing.T) {
+	manifest := loadPluginManifest(t)
+	release := loadGoReleaserConfig(t)
+	if len(release.Builds) != 1 {
+		t.Fatalf("goreleaser builds = %d, want 1", len(release.Builds))
+	}
+	build := release.Builds[0]
+
+	want := map[string]string{}
+	for _, goos := range build.Goos {
+		for _, goarch := range build.Goarch {
+			key := goos + "/" + goarch
+			want[key] = fmt.Sprintf("https://github.com/GoCodeAlone/workflow-plugin-discord/releases/download/v%s/workflow-plugin-discord-%s-%s.tar.gz", manifest.Version, goos, goarch)
+		}
+	}
+
+	got := map[string]string{}
+	for _, download := range manifest.Downloads {
+		got[download.OS+"/"+download.Arch] = download.URL
+	}
+	if !setsEqual(stringSetFromMap(got), stringSetFromMap(want)) {
+		t.Fatalf("download matrix = %v, want %v", got, want)
+	}
+	for key, wantURL := range want {
+		if gotURL := got[key]; gotURL != wantURL {
+			t.Fatalf("download %s = %q, want %q", key, gotURL, wantURL)
+		}
+	}
+}
+
+func TestGoReleaserValidatesRewrittenPluginManifest(t *testing.T) {
+	config := loadGoReleaserConfig(t)
+	hooks := strings.Join(config.Before.Hooks, "\n")
+	for _, want := range []string{
+		`sed -i.bak 's/"version": ".*"/"version": "{{ .Version }}"/' plugin.json`,
+		`sed -i.bak 's|/releases/download/v[^/]*/|/releases/download/v{{ .Version }}/|g' plugin.json`,
+		`wfctl@v0.20.1 plugin validate --file plugin.json --strict-contracts`,
+	} {
+		if !strings.Contains(hooks, want) {
+			t.Fatalf(".goreleaser.yaml missing %q", want)
+		}
 	}
 }
 
@@ -116,6 +199,99 @@ func TestCreateTriggerMissingToken(t *testing.T) {
 	if err == nil {
 		t.Error("expected error when token is missing")
 	}
+}
+
+type pluginManifest struct {
+	Version      string `json:"version"`
+	Capabilities struct {
+		ModuleTypes  []string `json:"moduleTypes"`
+		StepTypes    []string `json:"stepTypes"`
+		TriggerTypes []string `json:"triggerTypes"`
+	} `json:"capabilities"`
+	Contracts []struct {
+		Kind   string `json:"kind"`
+		Type   string `json:"type"`
+		Mode   string `json:"mode"`
+		Config string `json:"config"`
+	} `json:"contracts"`
+	Downloads []struct {
+		OS   string `json:"os"`
+		Arch string `json:"arch"`
+		URL  string `json:"url"`
+	} `json:"downloads"`
+}
+
+type goReleaserConfig struct {
+	Before struct {
+		Hooks []string `yaml:"hooks"`
+	} `yaml:"before"`
+	Builds []struct {
+		Goos   []string `yaml:"goos"`
+		Goarch []string `yaml:"goarch"`
+	} `yaml:"builds"`
+}
+
+func loadPluginManifest(t *testing.T) pluginManifest {
+	t.Helper()
+	data, err := os.ReadFile(filepath.Join(repoRoot(t), "plugin.json"))
+	if err != nil {
+		t.Fatalf("read plugin.json: %v", err)
+	}
+	var manifest pluginManifest
+	if err := json.Unmarshal(data, &manifest); err != nil {
+		t.Fatalf("parse plugin.json: %v", err)
+	}
+	return manifest
+}
+
+func loadGoReleaserConfig(t *testing.T) goReleaserConfig {
+	t.Helper()
+	data, err := os.ReadFile(filepath.Join(repoRoot(t), ".goreleaser.yaml"))
+	if err != nil {
+		t.Fatalf("read .goreleaser.yaml: %v", err)
+	}
+	var config goReleaserConfig
+	if err := yaml.Unmarshal(data, &config); err != nil {
+		t.Fatalf("parse .goreleaser.yaml: %v", err)
+	}
+	return config
+}
+
+func repoRoot(t *testing.T) string {
+	t.Helper()
+	_, file, _, ok := runtime.Caller(0)
+	if !ok {
+		t.Fatal("runtime.Caller failed")
+	}
+	return filepath.Dir(filepath.Dir(file))
+}
+
+func stringSet(values []string) map[string]bool {
+	set := make(map[string]bool, len(values))
+	for _, value := range values {
+		set[value] = true
+	}
+	return set
+}
+
+func stringSetFromMap(values map[string]string) map[string]bool {
+	set := make(map[string]bool, len(values))
+	for value := range values {
+		set[value] = true
+	}
+	return set
+}
+
+func setsEqual(left, right map[string]bool) bool {
+	if len(left) != len(right) {
+		return false
+	}
+	for key := range left {
+		if !right[key] {
+			return false
+		}
+	}
+	return true
 }
 
 // withTestProvider registers a fake discordProvider for Execute-level tests.
