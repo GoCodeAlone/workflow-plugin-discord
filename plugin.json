@@ -1,17 +1,25 @@
 {
     "name": "discord",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "author": "GoCodeAlone",
     "description": "Discord messaging, bots, and voice",
     "type": "external",
     "tier": "community",
     "license": "MIT",
-    "minEngineVersion": "0.1.0",
-    "keywords": ["discord", "messaging", "bot", "voice", "chat"],
+    "minEngineVersion": "0.51.7",
+    "keywords": [
+        "discord",
+        "messaging",
+        "bot",
+        "voice",
+        "chat"
+    ],
     "homepage": "https://github.com/GoCodeAlone/workflow-plugin-discord",
     "repository": "https://github.com/GoCodeAlone/workflow-plugin-discord",
     "capabilities": {
-        "moduleTypes": ["discord.provider"],
+        "moduleTypes": [
+            "discord.provider"
+        ],
         "stepTypes": [
             "step.discord_send_message",
             "step.discord_send_embed",
@@ -24,7 +32,9 @@
             "step.discord_voice_leave",
             "step.discord_voice_play"
         ],
-        "triggerTypes": ["trigger.discord"]
+        "triggerTypes": [
+            "trigger.discord"
+        ]
     },
     "contracts": [
         {
