@@ -4,9 +4,10 @@ before:
   hooks:
     - "mkdir -p dist"
     - "cp plugin.json dist/plugin.json"
+    - "cp plugin.contracts.json dist/plugin.contracts.json"
     - "sed -i.bak 's/\"version\": \".*\"/\"version\": \"{{ .Version }}\"/' dist/plugin.json && rm -f dist/plugin.json.bak"
     - "sed -i.bak 's|/releases/download/v[^/]*/|/releases/download/v{{ .Version }}/|g' dist/plugin.json && rm -f dist/plugin.json.bak"
-    - "go run github.com/GoCodeAlone/workflow/cmd/wfctl@v0.20.1 plugin validate --file dist/plugin.json --strict-contracts"
+    - "go run github.com/GoCodeAlone/workflow/cmd/wfctl@v0.51.7 plugin validate --file dist/plugin.json --strict-contracts"
 
 builds:
   - main: ./cmd/{{ .ProjectName }}
