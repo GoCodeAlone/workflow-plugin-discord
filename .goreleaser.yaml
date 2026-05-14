@@ -28,6 +28,7 @@ archives:
     files:
       - src: dist/plugin.json
         dst: plugin.json
+      - plugin.contracts.json
 
 checksum:
   name_template: checksums.txt

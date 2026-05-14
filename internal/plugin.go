@@ -44,7 +44,7 @@ type triggerRegistration struct {
 var discordModuleRegistrations = []moduleRegistration{
 	{
 		typeName: "discord.provider",
-		config:   "discord.v1.ProviderConfig",
+		config:   "workflow.plugin.discord.v1.ProviderConfig",
 		create: func(name string, config map[string]any) (sdk.ModuleInstance, error) {
 			return newDiscordProvider(name, config)
 		},
@@ -52,23 +52,23 @@ var discordModuleRegistrations = []moduleRegistration{
 }
 
 var discordStepRegistrations = []stepRegistration{
-	{"step.discord_send_message", "discord.v1.SendMessageConfig", "discord.v1.SendMessageOutput", func() sdk.StepInstance { return &sendMessageStep{} }},
-	{"step.discord_send_embed", "discord.v1.SendEmbedConfig", "discord.v1.SendEmbedOutput", func() sdk.StepInstance { return &sendEmbedStep{} }},
-	{"step.discord_edit_message", "discord.v1.EditMessageConfig", "discord.v1.EditMessageOutput", func() sdk.StepInstance { return &editMessageStep{} }},
-	{"step.discord_delete_message", "discord.v1.DeleteMessageConfig", "discord.v1.DeleteMessageOutput", func() sdk.StepInstance { return &deleteMessageStep{} }},
-	{"step.discord_add_reaction", "discord.v1.AddReactionConfig", "discord.v1.AddReactionOutput", func() sdk.StepInstance { return &addReactionStep{} }},
-	{"step.discord_upload_file", "discord.v1.UploadFileConfig", "discord.v1.UploadFileOutput", func() sdk.StepInstance { return &uploadFileStep{} }},
-	{"step.discord_create_thread", "discord.v1.CreateThreadConfig", "discord.v1.CreateThreadOutput", func() sdk.StepInstance { return &createThreadStep{} }},
-	{"step.discord_voice_join", "discord.v1.VoiceJoinConfig", "discord.v1.VoiceJoinOutput", func() sdk.StepInstance { return &voiceJoinStep{} }},
-	{"step.discord_voice_leave", "discord.v1.VoiceLeaveConfig", "discord.v1.VoiceLeaveOutput", func() sdk.StepInstance { return &voiceLeaveStep{} }},
-	{"step.discord_voice_play", "discord.v1.VoicePlayConfig", "discord.v1.VoicePlayOutput", func() sdk.StepInstance { return &voicePlayStep{} }},
+	{"step.discord_send_message", "workflow.plugin.discord.v1.SendMessageConfig", "workflow.plugin.discord.v1.SendMessageOutput", func() sdk.StepInstance { return &sendMessageStep{} }},
+	{"step.discord_send_embed", "workflow.plugin.discord.v1.SendEmbedConfig", "workflow.plugin.discord.v1.SendEmbedOutput", func() sdk.StepInstance { return &sendEmbedStep{} }},
+	{"step.discord_edit_message", "workflow.plugin.discord.v1.EditMessageConfig", "workflow.plugin.discord.v1.EditMessageOutput", func() sdk.StepInstance { return &editMessageStep{} }},
+	{"step.discord_delete_message", "workflow.plugin.discord.v1.DeleteMessageConfig", "workflow.plugin.discord.v1.DeleteMessageOutput", func() sdk.StepInstance { return &deleteMessageStep{} }},
+	{"step.discord_add_reaction", "workflow.plugin.discord.v1.AddReactionConfig", "workflow.plugin.discord.v1.AddReactionOutput", func() sdk.StepInstance { return &addReactionStep{} }},
+	{"step.discord_upload_file", "workflow.plugin.discord.v1.UploadFileConfig", "workflow.plugin.discord.v1.UploadFileOutput", func() sdk.StepInstance { return &uploadFileStep{} }},
+	{"step.discord_create_thread", "workflow.plugin.discord.v1.CreateThreadConfig", "workflow.plugin.discord.v1.CreateThreadOutput", func() sdk.StepInstance { return &createThreadStep{} }},
+	{"step.discord_voice_join", "workflow.plugin.discord.v1.VoiceJoinConfig", "workflow.plugin.discord.v1.VoiceJoinOutput", func() sdk.StepInstance { return &voiceJoinStep{} }},
+	{"step.discord_voice_leave", "workflow.plugin.discord.v1.VoiceLeaveConfig", "workflow.plugin.discord.v1.VoiceLeaveOutput", func() sdk.StepInstance { return &voiceLeaveStep{} }},
+	{"step.discord_voice_play", "workflow.plugin.discord.v1.VoicePlayConfig", "workflow.plugin.discord.v1.VoicePlayOutput", func() sdk.StepInstance { return &voicePlayStep{} }},
 }
 
 var discordTriggerRegistrations = []triggerRegistration{
 	{
 		typeName: "trigger.discord",
-		config:   "discord.v1.TriggerConfig",
-		output:   "discord.v1.TriggerPayload",
+		config:   "workflow.plugin.discord.v1.TriggerConfig",
+		output:   "workflow.plugin.discord.v1.TriggerPayload",
 		create: func(config map[string]any, cb sdk.TriggerCallback) (sdk.TriggerInstance, error) {
 			return newDiscordTrigger(config, cb)
 		},

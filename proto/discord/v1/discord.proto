@@ -1,0 +1,232 @@
+syntax = "proto3";
+
+package workflow.plugin.discord.v1;
+
+import "google/protobuf/struct.proto";
+
+option go_package = "github.com/GoCodeAlone/workflow-plugin-discord/gen;discordv1";
+
+// ── module: discord.provider ──────────────────────────────────────────────────
+
+// ProviderConfig is the typed config for the discord.provider module.
+// Fields mirror the keys read in internal/provider.go newDiscordProvider.
+message ProviderConfig {
+  // token is the Discord bot token (required unless mock_mode is true).
+  string token = 1;
+  // mock_mode skips the WebSocket gateway connection (for testing).
+  bool mock_mode = 2;
+  // base_url overrides the Discord REST API base URL (for testing).
+  string base_url = 3;
+}
+
+// ── step.discord_send_message ─────────────────────────────────────────────────
+
+message SendMessageConfig {
+  // provider is the name of the discord.provider module to use. Default: "discord".
+  string provider = 1;
+  // channel_id is the target Discord channel ID.
+  string channel_id = 2;
+  // content is the message text to send.
+  string content = 3;
+}
+
+message SendMessageInput {
+  google.protobuf.Struct data = 1;
+}
+
+message SendMessageOutput {
+  // id is the Discord message ID (same as message_id).
+  string id = 1;
+  // message_id is the Discord message ID.
+  string message_id = 2;
+  // channel_id is the channel the message was sent to.
+  string channel_id = 3;
+}
+
+// ── step.discord_send_embed ───────────────────────────────────────────────────
+
+message SendEmbedConfig {
+  string provider = 1;
+  string channel_id = 2;
+  // title is the embed title.
+  string title = 3;
+  // description is the embed description text.
+  string description = 4;
+  // color is the embed border color as an integer (e.g. 16711680 = red).
+  int32 color = 5;
+}
+
+message SendEmbedInput {
+  google.protobuf.Struct data = 1;
+}
+
+message SendEmbedOutput {
+  string id = 1;
+  string message_id = 2;
+  string channel_id = 3;
+}
+
+// ── step.discord_edit_message ─────────────────────────────────────────────────
+
+message EditMessageConfig {
+  string provider = 1;
+  string channel_id = 2;
+  // message_id is the ID of the message to edit.
+  string message_id = 3;
+  // content is the new text content.
+  string content = 4;
+}
+
+message EditMessageInput {
+  google.protobuf.Struct data = 1;
+}
+
+message EditMessageOutput {
+  string message_id = 1;
+}
+
+// ── step.discord_delete_message ───────────────────────────────────────────────
+
+message DeleteMessageConfig {
+  string provider = 1;
+  string channel_id = 2;
+  string message_id = 3;
+}
+
+message DeleteMessageInput {
+  google.protobuf.Struct data = 1;
+}
+
+message DeleteMessageOutput {
+  bool deleted = 1;
+}
+
+// ── step.discord_add_reaction ─────────────────────────────────────────────────
+
+message AddReactionConfig {
+  string provider = 1;
+  string channel_id = 2;
+  string message_id = 3;
+  // emoji is the Unicode emoji or custom emoji string to react with.
+  string emoji = 4;
+}
+
+message AddReactionInput {
+  google.protobuf.Struct data = 1;
+}
+
+message AddReactionOutput {
+  bool reacted = 1;
+  bool success = 2;
+}
+
+// ── step.discord_upload_file ──────────────────────────────────────────────────
+
+message UploadFileConfig {
+  string provider = 1;
+  string channel_id = 2;
+  // filename is the name of the file attachment.
+  string filename = 3;
+  // content is the file text content to upload.
+  string content = 4;
+}
+
+message UploadFileInput {
+  google.protobuf.Struct data = 1;
+}
+
+message UploadFileOutput {
+  string message_id = 1;
+  string channel_id = 2;
+}
+
+// ── step.discord_create_thread ────────────────────────────────────────────────
+
+message CreateThreadConfig {
+  string provider = 1;
+  string channel_id = 2;
+  // message_id is the parent message ID to thread from (optional).
+  string message_id = 3;
+  // name is the thread name.
+  string name = 4;
+}
+
+message CreateThreadInput {
+  google.protobuf.Struct data = 1;
+}
+
+message CreateThreadOutput {
+  string thread_id = 1;
+  string name = 2;
+}
+
+// ── step.discord_voice_join ───────────────────────────────────────────────────
+
+message VoiceJoinConfig {
+  string provider = 1;
+  // guild_id is the Discord server (guild) ID.
+  string guild_id = 2;
+  string channel_id = 3;
+}
+
+message VoiceJoinInput {
+  google.protobuf.Struct data = 1;
+}
+
+message VoiceJoinOutput {
+  bool joined = 1;
+}
+
+// ── step.discord_voice_leave ──────────────────────────────────────────────────
+
+message VoiceLeaveConfig {
+  string provider = 1;
+  string guild_id = 2;
+}
+
+message VoiceLeaveInput {
+  google.protobuf.Struct data = 1;
+}
+
+message VoiceLeaveOutput {
+  bool left = 1;
+  string reason = 2;
+}
+
+// ── step.discord_voice_play ───────────────────────────────────────────────────
+
+message VoicePlayConfig {
+  string provider = 1;
+  string guild_id = 2;
+}
+
+message VoicePlayInput {
+  google.protobuf.Struct data = 1;
+}
+
+message VoicePlayOutput {
+  bool playing = 1;
+}
+
+// ── trigger.discord ───────────────────────────────────────────────────────────
+
+// TriggerConfig is the typed config for trigger.discord.
+// Fields mirror the keys read in internal/trigger.go newDiscordTrigger.
+message TriggerConfig {
+  // token is the Discord bot token (required).
+  string token = 1;
+}
+
+// TriggerPayload is emitted for each Discord gateway event.
+message TriggerPayload {
+  // type is the event type: "message_create", "message_update", "reaction_add", "member_join".
+  string type = 1;
+  string channel_id = 2;
+  string message_id = 3;
+  string content = 4;
+  string author_id = 5;
+  string guild_id = 6;
+  string user_id = 7;
+  // emoji is set for reaction_add events.
+  string emoji = 8;
+}
