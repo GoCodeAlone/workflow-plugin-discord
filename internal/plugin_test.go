@@ -163,8 +163,8 @@ func TestPluginContractsMatchRuntimeTypes(t *testing.T) {
 	for _, contract := range manifest.Contracts {
 		key := contract.Kind + ":" + contract.Type
 		got[key] = true
-		if contract.Mode != "strict" {
-			t.Fatalf("%s mode = %q, want strict", key, contract.Mode)
+		if contract.Mode != "strict_proto" {
+			t.Fatalf("%s mode = %q, want strict_proto", key, contract.Mode)
 		}
 		wantDescriptor, ok := wantDescriptors[key]
 		if !ok {
@@ -225,6 +225,7 @@ func TestGoReleaserValidatesRewrittenPluginManifest(t *testing.T) {
 	releaseVersion := "9.8.7"
 	tmp := t.TempDir()
 	copyFile(t, filepath.Join(repoRoot(t), "plugin.json"), filepath.Join(tmp, "plugin.json"))
+	copyFile(t, filepath.Join(repoRoot(t), "plugin.contracts.json"), filepath.Join(tmp, "plugin.contracts.json"))
 	originalManifest := loadPluginManifestFrom(t, filepath.Join(tmp, "plugin.json"))
 	binDir := t.TempDir()
 	validationLog := filepath.Join(tmp, "validation.log")
@@ -267,7 +268,7 @@ grep -q "/releases/download/v$RELEASE_VERSION/" "$file" || exit 47
 if grep -q "/releases/download/v0.1.0/" "$file"; then
 	exit 48
 fi
-grep -q "\"mode\": \"strict\"" "$file" || exit 49
+grep -q "\"mode\": \"strict_proto\"" "$file" || exit 49
 printf 'validated %s\n' "$file" >> "$VALIDATION_LOG"
 `)
 

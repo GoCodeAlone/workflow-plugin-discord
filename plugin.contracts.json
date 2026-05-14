@@ -1,0 +1,98 @@
+{
+  "version": "1",
+  "contracts": [
+    {
+      "kind": "module",
+      "type": "discord.provider",
+      "mode": "strict_proto",
+      "config": "workflow.plugin.discord.v1.ProviderConfig"
+    },
+    {
+      "kind": "step",
+      "type": "step.discord_send_message",
+      "mode": "strict_proto",
+      "config": "workflow.plugin.discord.v1.SendMessageConfig",
+      "input": "workflow.plugin.discord.v1.SendMessageInput",
+      "output": "workflow.plugin.discord.v1.SendMessageOutput"
+    },
+    {
+      "kind": "step",
+      "type": "step.discord_send_embed",
+      "mode": "strict_proto",
+      "config": "workflow.plugin.discord.v1.SendEmbedConfig",
+      "input": "workflow.plugin.discord.v1.SendEmbedInput",
+      "output": "workflow.plugin.discord.v1.SendEmbedOutput"
+    },
+    {
+      "kind": "step",
+      "type": "step.discord_edit_message",
+      "mode": "strict_proto",
+      "config": "workflow.plugin.discord.v1.EditMessageConfig",
+      "input": "workflow.plugin.discord.v1.EditMessageInput",
+      "output": "workflow.plugin.discord.v1.EditMessageOutput"
+    },
+    {
+      "kind": "step",
+      "type": "step.discord_delete_message",
+      "mode": "strict_proto",
+      "config": "workflow.plugin.discord.v1.DeleteMessageConfig",
+      "input": "workflow.plugin.discord.v1.DeleteMessageInput",
+      "output": "workflow.plugin.discord.v1.DeleteMessageOutput"
+    },
+    {
+      "kind": "step",
+      "type": "step.discord_add_reaction",
+      "mode": "strict_proto",
+      "config": "workflow.plugin.discord.v1.AddReactionConfig",
+      "input": "workflow.plugin.discord.v1.AddReactionInput",
+      "output": "workflow.plugin.discord.v1.AddReactionOutput"
+    },
+    {
+      "kind": "step",
+      "type": "step.discord_upload_file",
+      "mode": "strict_proto",
+      "config": "workflow.plugin.discord.v1.UploadFileConfig",
+      "input": "workflow.plugin.discord.v1.UploadFileInput",
+      "output": "workflow.plugin.discord.v1.UploadFileOutput"
+    },
+    {
+      "kind": "step",
+      "type": "step.discord_create_thread",
+      "mode": "strict_proto",
+      "config": "workflow.plugin.discord.v1.CreateThreadConfig",
+      "input": "workflow.plugin.discord.v1.CreateThreadInput",
+      "output": "workflow.plugin.discord.v1.CreateThreadOutput"
+    },
+    {
+      "kind": "step",
+      "type": "step.discord_voice_join",
+      "mode": "strict_proto",
+      "config": "workflow.plugin.discord.v1.VoiceJoinConfig",
+      "input": "workflow.plugin.discord.v1.VoiceJoinInput",
+      "output": "workflow.plugin.discord.v1.VoiceJoinOutput"
+    },
+    {
+      "kind": "step",
+      "type": "step.discord_voice_leave",
+      "mode": "strict_proto",
+      "config": "workflow.plugin.discord.v1.VoiceLeaveConfig",
+      "input": "workflow.plugin.discord.v1.VoiceLeaveInput",
+      "output": "workflow.plugin.discord.v1.VoiceLeaveOutput"
+    },
+    {
+      "kind": "step",
+      "type": "step.discord_voice_play",
+      "mode": "strict_proto",
+      "config": "workflow.plugin.discord.v1.VoicePlayConfig",
+      "input": "workflow.plugin.discord.v1.VoicePlayInput",
+      "output": "workflow.plugin.discord.v1.VoicePlayOutput"
+    },
+    {
+      "kind": "trigger",
+      "type": "trigger.discord",
+      "mode": "strict_proto",
+      "config": "workflow.plugin.discord.v1.TriggerConfig",
+      "output": "workflow.plugin.discord.v1.TriggerPayload"
+    }
+  ]
+}

@@ -37,7 +37,11 @@ func newDiscordProvider(name string, config map[string]any) (*discordProvider, e
 	if token == "" {
 		token = "mock-discord-token"
 	}
+	// Accept both camelCase (legacy) and snake_case (proto-generated config key).
 	baseURL, _ := config["baseURL"].(string)
+	if baseURL == "" {
+		baseURL, _ = config["base_url"].(string)
+	}
 	return &discordProvider{name: name, token: token, baseURL: baseURL, mockMode: mockMode}, nil
 }
 

@@ -1,0 +1,32 @@
+name: wfctl strict contracts
+
+on:
+  pull_request:
+  push:
+    branches: [main, master]
+
+jobs:
+  wfctl-strict-contracts:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check plugin.json and plugin.contracts.json exist
+        run: |
+          if [ ! -f plugin.json ]; then
+            echo "::error::plugin.json is missing — add a plugin manifest to enable strict contract validation"
+            exit 1
+          fi
+          if [ ! -f plugin.contracts.json ]; then
+            echo "::error::plugin.contracts.json is missing — add a contracts file to pass strict contract validation"
+            exit 1
+          fi
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - name: Validate strict plugin contracts
+        run: go run github.com/GoCodeAlone/workflow/cmd/wfctl@v0.51.7 plugin validate --file plugin.json --strict-contracts
