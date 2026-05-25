@@ -2,11 +2,11 @@ version: 2
 
 before:
   hooks:
-    - "rm -rf /tmp/release-stage && mkdir -p /tmp/release-stage"
+    - "sh -c 'rm -rf /tmp/release-stage && mkdir -p /tmp/release-stage'"
     - "cp plugin.json /tmp/release-stage/plugin.json"
     - "cp plugin.contracts.json /tmp/release-stage/plugin.contracts.json"
-    - "sed -i.bak 's/\"version\": \".*\"/\"version\": \"{{ .Version }}\"/' /tmp/release-stage/plugin.json && rm -f /tmp/release-stage/plugin.json.bak"
-    - "sed -i.bak 's|/releases/download/v[^/]*/|/releases/download/v{{ .Version }}/|g' /tmp/release-stage/plugin.json && rm -f /tmp/release-stage/plugin.json.bak"
+    - "sh -c \"sed -i.bak 's/\\\"version\\\": \\\".*\\\"/\\\"version\\\": \\\"{{ .Version }}\\\"/' /tmp/release-stage/plugin.json && rm -f /tmp/release-stage/plugin.json.bak\""
+    - "sh -c \"sed -i.bak 's|/releases/download/v[^/]*/|/releases/download/v{{ .Version }}/|g' /tmp/release-stage/plugin.json && rm -f /tmp/release-stage/plugin.json.bak\""
     - "go run github.com/GoCodeAlone/workflow/cmd/wfctl@v0.51.7 plugin validate --file /tmp/release-stage/plugin.json --strict-contracts"
 
 builds:
