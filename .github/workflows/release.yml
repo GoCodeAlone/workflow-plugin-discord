@@ -57,7 +57,7 @@ jobs:
             jq '.[] | {name, type, goos, goarch, path}' dist/artifacts.json
             exit 0
           fi
-          "${{ runner.temp }}/wfctl-bin/wfctl" plugin verify-capabilities --binary "$BIN" .
+          "${{ runner.temp }}/wfctl-bin/wfctl" plugin verify-capabilities --binary "$BIN" .goreleaser-tmp
 
       - name: Publish GitHub release
         uses: actions/github-script@v7
