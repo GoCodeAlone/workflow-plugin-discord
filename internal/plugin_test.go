@@ -289,7 +289,7 @@ printf 'validated %s\n' "$file" >> "$VALIDATION_LOG"
 	if sourceManifest.Version != originalManifest.Version {
 		t.Fatalf("source manifest version = %q after hooks, want original %q", sourceManifest.Version, originalManifest.Version)
 	}
-	manifest := loadPluginManifestFrom(t, filepath.Join(tmp, "dist", "plugin.json"))
+	manifest := loadPluginManifestFrom(t, filepath.Join(tmp, ".goreleaser-tmp", "plugin.json"))
 	if manifest.Version != releaseVersion {
 		t.Fatalf("manifest version = %q, want %q", manifest.Version, releaseVersion)
 	}
@@ -299,7 +299,7 @@ printf 'validated %s\n' "$file" >> "$VALIDATION_LOG"
 			t.Fatalf("download URL %q does not use release version %s", download.URL, releaseVersion)
 		}
 	}
-	if data, err := os.ReadFile(validationLog); err != nil || !strings.Contains(string(data), "validated dist/plugin.json") {
+	if data, err := os.ReadFile(validationLog); err != nil || !strings.Contains(string(data), "validated .goreleaser-tmp/plugin.json") {
 		t.Fatalf("strict validation was not invoked; log=%q err=%v", data, err)
 	}
 	if _, err := os.Stat(filepath.Join(tmp, "plugin.json.orig")); !os.IsNotExist(err) {

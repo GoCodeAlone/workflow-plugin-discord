@@ -2,12 +2,12 @@ version: 2
 
 before:
   hooks:
-    - "sh -c 'rm -rf /tmp/release-stage && mkdir -p /tmp/release-stage'"
-    - "cp plugin.json /tmp/release-stage/plugin.json"
-    - "cp plugin.contracts.json /tmp/release-stage/plugin.contracts.json"
-    - "sh -c \"sed -i.bak 's/\\\"version\\\": \\\".*\\\"/\\\"version\\\": \\\"{{ .Version }}\\\"/' /tmp/release-stage/plugin.json && rm -f /tmp/release-stage/plugin.json.bak\""
-    - "sh -c \"sed -i.bak 's|/releases/download/v[^/]*/|/releases/download/v{{ .Version }}/|g' /tmp/release-stage/plugin.json && rm -f /tmp/release-stage/plugin.json.bak\""
-    - "go run github.com/GoCodeAlone/workflow/cmd/wfctl@v0.51.7 plugin validate --file /tmp/release-stage/plugin.json --strict-contracts"
+    - "sh -c 'rm -rf .goreleaser-tmp && mkdir -p .goreleaser-tmp'"
+    - "cp plugin.json .goreleaser-tmp/plugin.json"
+    - "cp plugin.contracts.json .goreleaser-tmp/plugin.contracts.json"
+    - "sh -c \"sed -i.bak 's/\\\"version\\\": \\\".*\\\"/\\\"version\\\": \\\"{{ .Version }}\\\"/' .goreleaser-tmp/plugin.json && rm -f .goreleaser-tmp/plugin.json.bak\""
+    - "sh -c \"sed -i.bak 's|/releases/download/v[^/]*/|/releases/download/v{{ .Version }}/|g' .goreleaser-tmp/plugin.json && rm -f .goreleaser-tmp/plugin.json.bak\""
+    - "go run github.com/GoCodeAlone/workflow/cmd/wfctl@v0.51.7 plugin validate --file .goreleaser-tmp/plugin.json --strict-contracts"
 
 builds:
   - main: ./cmd/{{ .ProjectName }}
@@ -27,7 +27,7 @@ archives:
   - formats: [tar.gz]
     name_template: "{{ .ProjectName }}-{{ .Os }}-{{ .Arch }}"
     files:
-      - src: /tmp/release-stage/plugin.json
+      - src: .goreleaser-tmp/plugin.json
         dst: plugin.json
       - plugin.contracts.json
 
