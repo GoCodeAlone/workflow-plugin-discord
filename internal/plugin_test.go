@@ -212,8 +212,11 @@ func TestPluginDownloadsMatchGoReleaserMatrix(t *testing.T) {
 	for key, wantURL := range want {
 		gotURL := got[key]
 		if manifest.Version == "0.0.0" {
-			if !strings.HasSuffix(gotURL, wantURL) || strings.Contains(gotURL, "/releases/download/v0.0.0/") {
-				t.Fatalf("download %s = %q, want released artifact suffix %q without sentinel URL", key, gotURL, wantURL)
+			const releasesPrefix = "https://github.com/GoCodeAlone/workflow-plugin-discord/releases/download/"
+			if !strings.HasPrefix(gotURL, releasesPrefix) ||
+				!strings.HasSuffix(gotURL, wantURL) ||
+				strings.Contains(gotURL, "/releases/download/v0.0.0/") {
+				t.Fatalf("download %s = %q, want GitHub Releases URL with artifact suffix %q without sentinel URL", key, gotURL, wantURL)
 			}
 			continue
 		}
