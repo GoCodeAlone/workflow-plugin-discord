@@ -194,7 +194,11 @@ func TestPluginDownloadsMatchGoReleaserMatrix(t *testing.T) {
 	for _, goos := range build.Goos {
 		for _, goarch := range build.Goarch {
 			key := goos + "/" + goarch
-			want[key] = fmt.Sprintf("https://github.com/GoCodeAlone/workflow-plugin-discord/releases/download/v%s/workflow-plugin-discord-%s-%s.tar.gz", manifest.Version, goos, goarch)
+			if manifest.Version == "0.0.0" {
+				want[key] = fmt.Sprintf("workflow-plugin-discord-%s-%s.tar.gz", goos, goarch)
+			} else {
+				want[key] = fmt.Sprintf("https://github.com/GoCodeAlone/workflow-plugin-discord/releases/download/v%s/workflow-plugin-discord-%s-%s.tar.gz", manifest.Version, goos, goarch)
+			}
 		}
 	}
 
@@ -206,7 +210,14 @@ func TestPluginDownloadsMatchGoReleaserMatrix(t *testing.T) {
 		t.Fatalf("download matrix = %v, want %v", got, want)
 	}
 	for key, wantURL := range want {
-		if gotURL := got[key]; gotURL != wantURL {
+		gotURL := got[key]
+		if manifest.Version == "0.0.0" {
+			if !strings.HasSuffix(gotURL, wantURL) || strings.Contains(gotURL, "/releases/download/v0.0.0/") {
+				t.Fatalf("download %s = %q, want released artifact suffix %q without sentinel URL", key, gotURL, wantURL)
+			}
+			continue
+		}
+		if gotURL != wantURL {
 			t.Fatalf("download %s = %q, want %q", key, gotURL, wantURL)
 		}
 	}
